@@ -1,0 +1,48 @@
+# Dependencies
+.env
+*.pyc
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.hypothesis/
+node_modules/
+/frontend/.next/
+/frontend/.turbo/
+
+# Python
+venv/
+env/
+.venv/
+/backend/.venv/
+
+# Docker
+.dockerinit
+docker-compose*.override.yml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+/Library/Application Support/Nvim/
+
+# Production logs
+logs/
+*.log
+
+# Database
+*.db
+*.sqlite3
+
+# MinIO/S3
+*.minio
+
+# Test coverage
+htmlcov/
+.coverage
+
+# Next.js cache
+/.cache
+
+# Environment
+.env.local

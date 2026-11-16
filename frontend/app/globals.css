@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom variables and base styles */
+:root {
+  --background: oklch(1 1 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 1 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 1 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.2 0.2 256);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.2 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.2 0.2 256);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.577 0.245 27);
+  --destructive-foreground: oklch(0.577 0.245 27);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0.191 256);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.2 0.2 256);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.2 0.2 256);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.641 0.222 231.6);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.27 0.144 264.5);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.325 0.118 264.5);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.641 0.222 231.6);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.577 0.245 27);
+  --destructive-foreground: oklch(0.577 0.245 27);
+  --border: oklch(0.244 0.066 264.5);
+  --input: oklch(0.244 0.066 264.5);
+  --ring: oklch(0.556 0.21 264.5);
+}
+
+/* Body and base styles */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom utility classes */
+@layer utilities {
+  .bg-grid {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 32 32' class='bg-grid'%3E%3Cpath stroke='%23e5e7eb' stroke-opacity='0.25' stroke-width='1' fill='none' d='M0 32h32V0H0V32ZM16 32h16V0H16V32Z'/%3E%3C/svg%3E");
+  }
+}
+
+/* Shadcn/ui overrides */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium 
+           transition-colors focus-visible:outline-none focus-visible:ring-2 
+           focus-visible:ring-ring focus-visible:ring-2 disabled:opacity-50 
+           disabled:pointer-events-none;
+  }
+  
+  .btn-primary {
+    @apply btn bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-secondary text-secondary-foreground hover:bg-secondary/90;
+  }
+  
+  .btn-outline {
+    @apply btn border border-input bg-background hover:bg-accent 
+           hover:text-primary-foreground;
+  }
+  
+  .input {
+    @ apply rounded-md border border-input bg-background px-py 
+           py-2 text-sm shadow-sm placeholder:text-muted-foreground 
+           focus-visible:outline-none focus-visible:ring-2 
+           focus-visible:ring-ring focus-visible:ring-2;
+  }
+  
+  .card {
+    @apply bg-card card-foreground rounded-lg shadow-sm;
+  }
+  
+  .sidebar-link {
+    @apply inline-flex items-center rounded-md px-3 py-2 text-sm font-medium 
+           text-muted-foreground hover:text-primary 
+           hover:bg-primary/10 active:bg-primary/5;
+  }
+}
