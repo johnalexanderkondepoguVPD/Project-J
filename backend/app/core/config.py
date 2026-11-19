@@ -10,11 +10,20 @@ class Settings:
     app_version: str = "0.1.0"
     environment: str = os.getenv("ENVIRONMENT", "development")
     debug: bool = os.getenv("DEBUG", "True") == "True"
+
+    @property
+    def APP_VERSION(self) -> str:
+        return self.app_version
     
     # Server
     host: str = "0.0.0.0"
     port: int = 8000
     cors_origins: list = None
+
+    def __post_init__(self):
+        if self.cors_origins is None:
+            cors_env = os.getenv("CORS_ORIGINS", "http://localhost:3000")
+            self.cors_origins = [o.strip() for o in cors_env.split(",") if o.strip()]
     
     # Database
     database_url: str = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/project_j")
@@ -25,11 +34,15 @@ class Settings:
     redis_port: int = int(os.getenv("REDIS_PORT", "6379"))
     redis_password: str = os.getenv("REDIS_PASSWORD", "")
     
-    # Security
+    # Security & Sessions
     secret_key: str = os.getenv("SECRET_KEY", "change-this-to-a-secure-random-key")
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
     refresh_token_expire_days: int = 30
+    session_cookie_name: str = os.getenv("SESSION_COOKIE_NAME", "project_j_session")
+    session_cookie_secure: bool = os.getenv("SESSION_COOKIE_SECURE", "false").lower() == "true"
+    session_cookie_samesite: str = os.getenv("SESSION_COOKIE_SAMESITE", "lax")
+    session_expire_days: int = int(os.getenv("SESSION_EXPIRE_DAYS", "7"))
     
     # AI / LLM
     openai_api_key: str = os.getenv("OPENAI_API_KEY", "")

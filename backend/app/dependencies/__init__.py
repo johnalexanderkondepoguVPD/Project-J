@@ -1,17 +1,19 @@
-from typing import Optional
-from fastapi import Cookie, HTTPException, Request, Depends
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Optional, Generator
+from fastapi import Request, Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy.orm import Session
 
-from app.core.exceptions import AuthenticationException
+from app.core.config import settings
+from app.schemas.user import UserResponse
+from app.services.auth import AuthService
+from app.database import SessionLocal
 
 
 http_bearer = HTTPBearer(auto_error=False)
 
 
-async def get_db() -> AsyncSession:
-    """Dependency to get a database session."""
-    from app.database import SessionLocal
+def get_db() -> Generator[Session, None, None]:
+    """Dependency to get a synchronous database session."""
     db = SessionLocal()
     try:
         yield db
@@ -19,30 +21,49 @@ async def get_db() -> AsyncSession:
         db.close()
 
 
+def extract_session_id(
+    request: Request,
+    bearer_creds: Optional[HTTPAuthorizationCredentials] = Depends(http_bearer),
+) -> Optional[str]:
+    """Extract session ID from cookie or Authorization Bearer header."""
+    # 1. Check configured cookie name
+    session_id = request.cookies.get(settings.session_cookie_name)
+    if session_id:
+        return session_id
+
+    # 2. Check fallback cookie name 'session_id'
+    session_id = request.cookies.get("session_id")
+    if session_id:
+        return session_id
+
+    # 3. Check Authorization header
+    if bearer_creds and bearer_creds.credentials:
+        return bearer_creds.credentials
+
+    return None
+
+
 async def get_current_user(
-    session_id: Optional[str] = Cookie(None, alias="session_id"),
-) -> Optional["UserResponse"]:
-    """Dependency to get the current authenticated user from session cookie.
-
-    The session ID is sent as an opaque string through a secure HTTP cookie.
-    The backend hashes it and looks up the corresponding active session.
-    """
-    from app.services.auth import AuthService
-
+    request: Request,
+    bearer_creds: Optional[HTTPAuthorizationCredentials] = Depends(http_bearer),
+) -> Optional[UserResponse]:
+    """Dependency to get the current user, or None if unauthenticated."""
+    session_id = extract_session_id(request, bearer_creds)
     if not session_id:
         return None
 
-    auth_service = AuthService()
-    user = auth_service.get_current_user(session_id)
-    return user
-
-
-async def get_optional_current_user(
-    session_id: Optional[str] = Cookie(None, alias="session_id"),
-) -> Optional["UserResponse"]:
-    """Dependency to get the current user optionally (for public endpoints)."""
-    if not session_id:
-        return None
-    from app.services.auth import AuthService
     auth_service = AuthService()
     return auth_service.get_current_user(session_id)
+
+
+async def get_current_active_user(
+    current_user: Optional[UserResponse] = Depends(get_current_user),
+) -> UserResponse:
+    """Dependency to enforce that user is authenticated and active."""
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return current_user

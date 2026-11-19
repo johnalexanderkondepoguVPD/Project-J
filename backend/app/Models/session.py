@@ -2,9 +2,9 @@ import uuid
 import hashlib
 from datetime import datetime, timedelta
 
-from sqlalchemy import Column, String, DateTime, Boolean, UUID, Text, Index, ForeignKey
+from sqlalchemy import Column, String, DateTime, Boolean, Uuid, Text, Index, ForeignKey
 from sqlalchemy.sql import func
-from . import Base
+from app.database import Base
 
 
 def _hash_session_id(session_id: str) -> str:
@@ -15,9 +15,9 @@ def _hash_session_id(session_id: str) -> str:
 class Session(Base):
     __tablename__ = "sessions"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Uuid, primary_key=True, default=uuid.uuid4)
     session_hash = Column(String(64), unique=True, nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    user_id = Column(Uuid, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     expires_at = Column(DateTime(timezone=True), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     revoked = Column(Boolean, default=False)
