@@ -14,19 +14,22 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-# Import base from app.database
-from app.database import Base
+# Import base and all models from app.database and app.Models
+import app.Models
+from app.database import Base, get_sync_database_url
+from app.core.config import settings
+
 target_metadata = Base.metadata
+
+# Use DATABASE_URL from settings if configured
+sync_db_url = get_sync_database_url(settings.database_url)
+if sync_db_url:
+    config.set_main_option("sqlalchemy.url", sync_db_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
-
-# add your model's MetaData object here
-# for 'autogenerate' support
-from database import Base
-target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
